@@ -49,7 +49,7 @@ Deployment via Installer
 ------------------------
 
 1. Add your user to `/etc/sudoers`, this must be done so the script can sudo up and do it's job.  We suggest passwordless sudo.  Suggested line: `<USER> ALL=(ALL) NOPASSWD:ALL`.  Our sample builds use: `pooldaemon ALL=(ALL) NOPASSWD:ALL`
-2. Run the [deploy script](https://raw.githubusercontent.com/Snipa22/nodejs-pool/master/deployment/deploy.bash) as a **NON-ROOT USER**.  This is very important!  This script will install the pool to whatever user it's running under!  Also.  Go get a coffee, this sucker bootstraps the monero installation.
+2. Run the [deploy script](https://raw.githubusercontent.com/Venthos/nodejs-pool/master/deployment/deploy.bash) as a **NON-ROOT USER**.  This is very important!  This script will install the pool to whatever user it's running under!  Also.  Go get a coffee, this sucker bootstraps the monero installation.
 3. Once it's complete, change as `config.json` appropriate.  It is pre-loaded for a local install of everything, running on 127.0.0.1.  This will work perfectly fine if you're using a single node setup.  You'll also want to set `bind_ip` to the external IP of the pool server, and `hostname` to the resolvable hostname for the pool server. `pool_id` is mostly used for multi-server installations to provide unique identifiers in the backend. You will also want to run: source ~/.bashrc  This will activate NVM and get things working for the following pm2 steps.
 4. You'll need to change the API endpoint for the frontend code in the `poolui/build/globals.js` and `poolui/build/globals.default.js` -- This will usually be `http(s)://<your server FQDN>/api` unless you tweak caddy!
 5. The default database directory `/home/<username>/pool_db/` is already been created during startup. If you change the `db_storage_path` just make sure your user has write permissions for new path. Run: `pm2 restart api` to reload the API for usage.  
@@ -70,7 +70,7 @@ pm2 restart api
 
 Install Script:
 ```bash
-curl -L https://raw.githubusercontent.com/Snipa22/nodejs-pool/master/deployment/deploy.bash | bash
+curl -L https://raw.githubusercontent.com/Venthos/nodejs-pool/master/deployment/deploy.bash | bash
 ```
 
 Assumptions for the installer
@@ -140,7 +140,7 @@ UPDATE pool.users SET email='your new password here' WHERE username='Administrat
 ```
 The email field is used as the default password field until the password is changed, at which point, it's hashed and dumped into the password field instead, and using the email field as a password is disabled.
 
-You should take a look at the [wiki](https://github.com/Snipa22/nodejs-pool/wiki/Configuration-Details) for specific configuration settings in the system.
+You should take a look at the [wiki](https://github.com/Venthos/nodejs-pool/wiki/Configuration-Details) for specific configuration settings in the system.
 
 Pool Update Procedures
 ======================
@@ -237,21 +237,6 @@ For 1 in 1000000000 chance: 5% fee -> 1800 2% fee -> 4500
 
 The developers of the pool have not verified this, but based on our own usage on https://xmrpool.net/ this seems rather reasonable.  You should be wary if you're considering PPS and take you fees into account appropriately!
 
-Installation/Configuration Assistance
-=====================================
-If you need help installing the pool from scratch, please have your servers ready, which would be Ubuntu 16.04 servers, blank and clean, DNS records pointed.  These need to be x86_64 boxes with AES-NI Available.
-
-Installation assistance is 7 XMR, with a 3 XMR deposit, with remainder to be paid on completion.  
-Configuration assistance is 4 XMR with a 2 XMR deposit, and includes debugging your pool configurations, ensuring that everything is running, and tuning for your uses/needs.  
-
-SSH access with a sudo-enabled user will be needed, preferably the user that is slated to run the pool.
-
-If you'd like assistance with setting up node-cryptonote-pool, please provide what branch/repo you'd like to work from, as there's a variety of these.
-
-Assistance is not available for frontend customization at this time.
-
-For assistance, please contact Snipa at pool_install@snipanet.com or via IRC at irc.freenode.net in the #monero-pools channel.
-
 Developer Donations
 ===================
 If you'd like to make a one time donation, the addresses are as follows:
@@ -261,6 +246,8 @@ If you'd like to make a one time donation, the addresses are as follows:
 
 Credits
 =======
+
+[Snipa22](https://github.com/Snipa22) - Original [nodejs-pool](https://github.com/Snipa22/nodejs-pool) from which this has been forked
 
 [Zone117x](https://github.com/zone117x) - Original [node-cryptonote-pool](https://github.com/zone117x/node-cryptonote-pool) from which, the stratum implementation has been borrowed.
 

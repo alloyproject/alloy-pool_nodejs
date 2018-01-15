@@ -7,7 +7,7 @@ sudo git checkout .
 sudo git checkout master
 sudo git pull
 sudo git checkout origin/release-v0.11.0.0
-curl -L https://raw.githubusercontent.com/Snipa22/nodejs-pool/master/deployment/monero_daemon.patch | sudo git apply -v
+curl -L https://raw.githubusercontent.com/Venthos22/nodejs-pool/master/deployment/monero_daemon.patch | sudo git apply -v
 sudo rm -rf build
 sudo make -j$(nproc)
 echo "Done building the new Monero daemon!  Please go ahead and reboot monero with: sudo systemctl restart monero as soon as the pool source is updated!"
