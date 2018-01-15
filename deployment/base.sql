@@ -138,7 +138,7 @@ CREATE TABLE `transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(256) NOT NULL,
+  `username` varchar(255) NOT NULL,
   `pass` varchar(64) DEFAULT NULL,
   `email` varchar(256) DEFAULT NULL,
   `admin` tinyint(1) DEFAULT '0',
