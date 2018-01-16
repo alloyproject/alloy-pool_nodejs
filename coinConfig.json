@@ -24,5 +24,13 @@
     "name": "Aeon Coin",
     "mixIn": 4,
     "shortCode": "AEON"
+  },
+  "itns": {
+    "funcFile": "./lib/coins/itns.js",
+    "paymentFile": "./payment_systems/itns.js",
+    "sigDigits": 100000000,
+    "name": "Intense Coin",
+    "mixIn": 3,
+    "shortCode": "ITNS"
   }
 }
