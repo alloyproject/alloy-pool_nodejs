@@ -25,12 +25,20 @@
     "mixIn": 4,
     "shortCode": "AEON"
   },
+  "itns142": {
+    "funcFile": "./lib/coins/itns142.js",
+    "paymentFile": "./payment_systems/itns142.js",
+    "sigDigits": 100000000,
+    "name": "Intense Coin",
+    "mixIn": 3,
+    "shortCode": "ITNS"
+  },
   "itns": {
     "funcFile": "./lib/coins/itns.js",
     "paymentFile": "./payment_systems/itns.js",
     "sigDigits": 100000000,
     "name": "Intense Coin",
-    "mixIn": 3,
+    "mixIn": 4,
     "shortCode": "ITNS"
   }
 }
