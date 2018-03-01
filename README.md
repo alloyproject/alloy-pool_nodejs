@@ -24,8 +24,8 @@ The nodejs-pool is built around a small series of core daemons that share access
 
 Daemon | Listen Port | Description
 ------ | ----------- | -----------
-api | 8000 | Main API for the frontend to use and pull data from.  Expects to be hosted at /
-remoteShare | 8001 | Main API for consuming shares from remote/local pools.  Expects to be hosted at /leafApi
+api | 8001 | Main API for the frontend to use and pull data from.  Expects to be hosted at /
+remoteShare | 8000 | Main API for consuming shares from remote/local pools.  Expects to be hosted at /leafApi
 pool | Configurable | Where the miners connect to.
 longRunner | N/A | Database share cleanup.
 payments | N/A | Handles all payments to workers.
