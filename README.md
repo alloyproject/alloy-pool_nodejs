@@ -326,12 +326,14 @@ The developers of the pool have not verified this. You should be wary if you're 
 If you'd like to make a one time donation, the addresses are as follows:
 
 **Venthos** - Maintainer/Developer of this fork of nodejs-pool
+
 Coin | Donation Address
 ---- | ----------------
 XMR  | 46BvkmZwu5bdPrfHguduUNe43MX9By6vsEAPASdkxjvWfXsoPcJbEXWi1LFm7Vroo2XLDThDzwtqRRehWSeSYhGoCLzg1tY
 ITNS | iz5imhe9C7vWnjZtZBFtT8MwNxVuJuryUUHXSAtnWUo93CJzNdZBizHQExPRCHUBi36tk2BcigPAFRDA4cnddGXF1R6j69n3w
 
 **Snipa22** - Maintainer/Developer of the original nodejs-pool
+
 Coin | Donation Address
 ---- | ----------------
 XMR  | 44Ldv5GQQhP7K7t3ZBdZjkPA7Kg7dhHwk3ZM3RJqxxrecENSFx27Vq14NAMAd2HBvwEPUVVvydPRLcC69JCZDHLT2X5a4gr
