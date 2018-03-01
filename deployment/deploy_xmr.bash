@@ -24,19 +24,20 @@ sudo mv libg* /usr/lib/
 cd ~
 sudo systemctl enable ntp
 cd /usr/local/src
-sudo git clone https://github.com/valiant1x/intensecoin.git
-cd intensecoin
-sudo git checkout xmr
+sudo git clone https://github.com/monero-project/monero.git
+cd monero
+sudo git checkout v0.11.1.0
+curl https://raw.githubusercontent.com/Venthos/nodejs-pool/master/deployment/monero_daemon.patch | sudo git apply -v
 sudo make -j$(nproc)
-sudo cp ~/nodejs-pool/deployment/intensecoin.service /lib/systemd/system/
-sudo useradd -m intensedaemon -d /home/intensedaemon
-BLOCKCHAIN_DOWNLOAD_DIR=$(sudo -u intensedaemon mktemp -d)
-sudo -u intensedaemon wget --limit-rate=50m -O $BLOCKCHAIN_DOWNLOAD_DIR/blockchain.raw https://github.com/valiant1x/intensecoin/releases/download/1.4.3/blockchain.raw
-sudo -u intensedaemon /usr/local/src/intensecoin/build/release/bin/intense-blockchain-import --input-file $BLOCKCHAIN_DOWNLOAD_DIR/blockchain.raw --batch-size 20000 --database lmdb#fastest --verify off --data-dir /home/intensedaemon/.intensecoin
-sudo -u intensedaemon rm -rf $BLOCKCHAIN_DOWNLOAD_DIR
+sudo cp ~/nodejs-pool/deployment/monero.service /lib/systemd/system/
+sudo useradd -m monerodaemon -d /home/monerodaemon
+BLOCKCHAIN_DOWNLOAD_DIR=$(sudo -u monerodaemon mktemp -d)
+sudo -u monerodaemon wget --limit-rate=50m -O $BLOCKCHAIN_DOWNLOAD_DIR/blockchain.raw https://downloads.getmonero.org/blockchain.raw
+sudo -u monerodaemon /usr/local/src/monero/build/release/bin/monero-blockchain-import --input-file $BLOCKCHAIN_DOWNLOAD_DIR/blockchain.raw --batch-size 20000 --database lmdb#fastest --verify off --data-dir /home/monerodaemon/.bitmonero
+sudo -u monerodaemon rm -rf $BLOCKCHAIN_DOWNLOAD_DIR
 sudo systemctl daemon-reload
-sudo systemctl enable intense
-sudo systemctl start intense
+sudo systemctl enable monero
+sudo systemctl start monero
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
 source ~/.nvm/nvm.sh
 nvm install v8.9.3

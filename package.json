@@ -5,9 +5,15 @@
   "main": "init.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Snipa22/node-crypto-pool.git"
+    "url": "https://github.com/Venthos/nodejs-pool.git"
   },
   "author": "Alexander Blair",
+  "contributors": [
+    {
+      "name": "Brian Oates",
+      "email": "venthos@venthos.net"
+    }
+  ],
   "license": "MIT",
   "dependencies": {
     "async": "2.1.4",

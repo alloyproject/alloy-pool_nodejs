@@ -1,0 +1,13 @@
+[Unit]
+Description=Intense Coin Daemon
+After=network.target
+
+[Service]
+Type=forking
+GuessMainPID=no
+ExecStart=/usr/local/src/intensecoin/build/release/bin/intensecoind --rpc-bind-ip 127.0.0.1 --detach --restricted-rpc
+Restart=always
+User=intensedaemon
+
+[Install]
+WantedBy=multi-user.target
