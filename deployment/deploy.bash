@@ -7,6 +7,7 @@ if [[ `whoami` == "root" ]]; then
     exit 1
 fi
 ROOT_SQL_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+WALLET_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 CURUSER=$(whoami)
 sudo timedatectl set-timezone Etc/UTC
 sudo apt-get update
@@ -16,7 +17,7 @@ sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again p
 echo -e "[client]\nuser=root\npassword=$ROOT_SQL_PASS" | sudo tee /root/.my.cnf
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y install git python-virtualenv python3-virtualenv curl ntp build-essential screen cmake pkg-config libboost-all-dev libevent-dev libunbound-dev libminiupnpc-dev libunwind8-dev liblzma-dev libldns-dev libexpat1-dev libgtest-dev mysql-server lmdb-utils libzmq3-dev
 cd ~
-git clone https://github.com/Venthos/nodejs-pool.git  # Change this depending on how the deployment goes.
+git clone https://github.com/alexmateescu/nodejs-pool.git  # Change this depending on how the deployment goes.
 cd /usr/src/gtest
 sudo cmake .
 sudo make
@@ -24,19 +25,22 @@ sudo mv libg* /usr/lib/
 cd ~
 sudo systemctl enable ntp
 cd /usr/local/src
-sudo git clone https://github.com/valiant1x/intensecoin.git
-cd intensecoin
-sudo git checkout xmr
+sudo git clone https://github.com/alloyproject/alloy.git
+cd alloy
+sudo mkdir build
+cd build
+sudo cmake ..
 sudo make -j$(nproc)
-sudo cp ~/nodejs-pool/deployment/intensecoin.service /lib/systemd/system/
-sudo useradd -m intensedaemon -d /home/intensedaemon
-BLOCKCHAIN_DOWNLOAD_DIR=$(sudo -u intensedaemon mktemp -d)
-sudo -u intensedaemon wget --limit-rate=50m -O $BLOCKCHAIN_DOWNLOAD_DIR/blockchain.raw https://github.com/valiant1x/intensecoin/releases/download/1.4.3/blockchain.raw
-sudo -u intensedaemon /usr/local/src/intensecoin/build/release/bin/intense-blockchain-import --input-file $BLOCKCHAIN_DOWNLOAD_DIR/blockchain.raw --batch-size 20000 --database lmdb#fastest --verify off --data-dir /home/intensedaemon/.intensecoin
-sudo -u intensedaemon rm -rf $BLOCKCHAIN_DOWNLOAD_DIR
+sudo cp ~/nodejs-pool/deployment/alloy.service /lib/systemd/system/
+sudo useradd -m alloydaemon -d /home/alloydaemon
+sudo /usr/local/src/alloy/build/src/simplewallet -g -w /home/alloydaemon/pool.wallet -p $WALLET_PASS # generate pool wallet
+sudo /usr/local/src/alloy/build/src/simplewallet -g -w /home/alloydaemon/fee.wallet -p $WALLET_PASS #generate fee wallet
+sudo sed -i -e 's/--password=/--password=$WALLET_PASS/g' ~/nodejs-pool/deployment/walletd.service
+sudo cp ~/nodejs-pool/deployment/walletd.service /lib/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable intense
-sudo systemctl start intense
+sudo systemctl enable alloy
+sudo systemctl start alloy
+
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
 source ~/.nvm/nvm.sh
 nvm install v8.9.3
@@ -84,11 +88,12 @@ cd ~/nodejs-pool
 sudo chown -R $CURUSER. ~/.pm2
 echo "Installing pm2-logrotate in the background!"
 pm2 install pm2-logrotate &
-mysql -u root --password=$ROOT_SQL_PASS < deployment/base.sql
-mysql -u root --password=$ROOT_SQL_PASS pool -e "INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('api', 'authKey', '`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`', 'string', 'Auth key sent with all Websocket frames for validation.')"
-mysql -u root --password=$ROOT_SQL_PASS pool -e "INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('api', 'secKey', '`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`', 'string', 'HMAC key for Passwords.  JWT Secret Key.  Changing this will invalidate all current logins.')"
+sudo mysql -u root --password=$ROOT_SQL_PASS < deployment/base.sql
+sudo mysql -u root --password=$ROOT_SQL_PASS pool -e "INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('api', 'authKey', '`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`', 'string', 'Auth key sent with all Websocket frames for validation.')"
+sudo mysql -u root --password=$ROOT_SQL_PASS pool -e "INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('api', 'secKey', '`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`', 'string', 'HMAC key for Passwords.  JWT Secret Key.  Changing this will invalidate all current logins.')"
 pm2 start init.js --name=api --log-date-format="YYYY-MM-DD HH:mm Z" -- --module=api
 bash ~/nodejs-pool/deployment/install_lmdb_tools.sh
 cd ~/nodejs-pool/sql_sync/
 env PATH=$PATH:`pwd`/.nvm/versions/node/v8.9.3/bin node sql_sync.js
+echo "Your wallet passord is $WALLET_PASS. It will work for both pool and fee wallets. You can find the wallet addreses in simplewallet.log"
 echo "You're setup!  Please read the rest of the readme for the remainder of your setup and configuration.  These steps include: Setting your Fee Address, Pool Address, Global Domain, and the Mailgun setup!"

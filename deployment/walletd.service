@@ -1,0 +1,13 @@
+[Unit]
+Description=Wallet Daemon
+After=network.target
+
+[Service]
+Type=simple
+GuessMainPID=no
+ExecStart=/usr/local/src/alloy/build/src/simplewallet  --wallet-file /home/alloydaemon/pool.wallet --password= --rpc-bind-ip=127.0.0.1 --rpc-bind-port 8070 --daemon-port=1811 --set_log 4
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

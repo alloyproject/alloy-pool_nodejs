@@ -1,0 +1,12 @@
+[Unit]
+Description=Alloy daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/local/src/alloy/build/src/alloyd --data-dir=/home/alloydaemon/.alloy --rpc-bind-ip=127.0.0.1 --rpc-bind-port=1811 --p2p-bind-ip=0.0.0.0 --p2p-bind-port=1810 --log-file /home/alloydaemon/alloyd.log --enable_blockexplorer
+WorkingDirectory=/home/alloydaemon/
+User=alloydaemon
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
