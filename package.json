@@ -48,9 +48,9 @@
     "zmq": "^2.15.3"
   },
   "optionalDependencies": {
-    "cryptonote-util": "git://github.com/Snipa22/node-cryptonote-util.git#xmr-Nan-2.0",
+    "cryptonote-util": "git://github.com/alloyproject/node-cryptonote-util.git",
     "intensecoin-util": "git://github.com/valiant1x/node-cryptonote-util.git#xmr-Nan-2.0",
     "forknote-util": "git://github.com/wallet42/node-forknote-util.git",
-    "multi-hashing": "git+https://github.com/Snipa22/node-multi-hashing-aesni.git"
+    "multi-hashing": "git://github.com/clintar/node-multi-hashing.git#Nan-2.0"
   }
 }
