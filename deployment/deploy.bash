@@ -33,8 +33,8 @@ sudo cmake ..
 sudo make -j$(nproc)
 sudo cp ~/nodejs-pool/deployment/alloy.service /lib/systemd/system/
 sudo useradd -m alloydaemon -d /home/alloydaemon
-sudo /usr/local/src/alloy/build/src/simplewallet --generate-new-wallet --wallet-file /home/alloydaemon/pool.wallet -password $WALLET_PASS # generate pool wallet
-sudo /usr/local/src/alloy/build/src/simplewallet --generate-new-wallet --wallet-file /home/alloydaemon/fee.wallet -password $WALLET_PASS #generate fee wallet
+sudo /usr/local/src/alloy/build/src/simplewallet --generate-new-wallet --wallet-file /home/alloydaemon/pool.wallet --password $WALLET_PASS # generate pool wallet
+sudo /usr/local/src/alloy/build/src/simplewallet --generate-new-wallet --wallet-file /home/alloydaemon/fee.wallet --password $WALLET_PASS #generate fee wallet
 sudo sed -i -e 's/--password=/--password=$WALLET_PASS/g' ~/nodejs-pool/deployment/walletd.service
 sudo cp ~/nodejs-pool/deployment/walletd.service /lib/systemd/system/
 sudo systemctl daemon-reload
