@@ -57,7 +57,6 @@ Single Server | caddy, crypto-daemon, crypto-wallet, mysql, lmdb, api, remoteSha
 * Frontend load is susceptible to causing backend performance issues, and vice versa
 
 ### Main Server w/Additional Pool Nodes
-This is what [ITNSpool.net](https://itnspool.net) currently utilizes, as a compromise in offering geographically convenient servers for miners to use while keeping costs lower than they have to be.  This setup is the minimum barrier to provide two pool servers that miners can use.
 
 Server | Services
 ------ | --------
@@ -122,7 +121,7 @@ The below should be considered bare minimum requirements for a pool that is just
 
 **Single/Main Server**
 * 4 GB RAM
-* 2 CPU Cores (with AES_NI)
+* 2 CPU Cores (with AES_NI or without)
 * SSD-Backed Storage
   * Up to 24GB for LMDB
   * Enough room for your choice in coin's blockchain, including future growth
@@ -164,11 +163,13 @@ pm2 start init.js --name=remoteShare --log-date-format="YYYY-MM-DD HH:mm Z" -- -
 pm2 start init.js --name=longRunner --log-date-format="YYYY-MM-DD HH:mm Z" -- --module=longRunner
 pm2 start init.js --name=pool --log-date-format="YYYY-MM-DD HH:mm Z" -- --module=pool
 pm2 restart api
+
+10. once the daemon is synced do sudo systemctl enable walletd, sudo systemctl start walletd
 ```
 
 Install Script:
 ```bash
-curl -L https://raw.githubusercontent.com/Venthos/nodejs-pool/master/deployment/deploy.bash | bash
+curl -L https://raw.githubusercontent.com/alexmateescu/nodejs-pool/master/deployment/deploy.bash | bash
 ```
 
 ### Assumptions for the installer
