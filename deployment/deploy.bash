@@ -35,7 +35,7 @@ sudo cp ~/nodejs-pool/deployment/alloy.service /lib/systemd/system/
 sudo useradd -m alloydaemon -d /home/alloydaemon
 echo exit | sudo /usr/local/src/alloy/build/src/simplewallet --generate-new-wallet /home/alloydaemon/pool.wallet --password $WALLET_PASS # generate pool wallet
 echo exit | sudo /usr/local/src/alloy/build/src/simplewallet --generate-new-wallet /home/alloydaemon/fee.wallet --password $WALLET_PASS #generate fee wallet
-sudo sed -i -e 's/--password=/--password=$WALLET_PASS/g' ~/nodejs-pool/deployment/walletd.service
+sudo sed -i "s/password=/password=$WALLET_PASS/g" ~/nodejs-pool/deployment/walletd.service
 sudo cp ~/nodejs-pool/deployment/walletd.service /lib/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable alloy
