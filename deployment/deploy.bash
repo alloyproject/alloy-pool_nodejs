@@ -17,7 +17,7 @@ sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again p
 echo -e "[client]\nuser=root\npassword=$ROOT_SQL_PASS" | sudo tee /root/.my.cnf
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y install git python-virtualenv python3-virtualenv curl ntp build-essential screen cmake pkg-config libboost-all-dev libevent-dev libunbound-dev libminiupnpc-dev libunwind8-dev liblzma-dev libldns-dev libexpat1-dev libgtest-dev mysql-server lmdb-utils libzmq3-dev
 cd ~
-git clone https://github.com/alexmateescu/nodejs-pool.git  # Change this depending on how the deployment goes.
+git clone https://github.com/alloyproject/alloy-pool.git nodejs-pool  # Change this depending on how the deployment goes.
 cd /usr/src/gtest
 sudo cmake .
 sudo make
@@ -39,6 +39,7 @@ sudo sed -i -e 's/--password=/--password=$WALLET_PASS/g' ~/nodejs-pool/deploymen
 sudo cp ~/nodejs-pool/deployment/walletd.service /lib/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable alloy
+sudo systemctl enable walletd
 sudo systemctl start alloy
 
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
