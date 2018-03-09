@@ -18,7 +18,7 @@ KRB | Karbowanec | krb | :white_check_mark: | :x:
 # Reference Installation
 [http://xao.almsoft.net](http://xao.almsoft.net) is the reference pool that utilizes this repository.  Take a look at the pool for a production example of this codebase.
 
-The UI is the [original poolui](https://github.com/mesh0000/poolui). New UI being built.
+The UI is the [moded poolui](https://github.com/alexmateescu/poolui). There is a new UI being built.
 
 # Pool Design/Theory
 The nodejs-pool is built around a small series of core daemons that share access to a single LMDB table for tracking of shares, with MySQL being used to centralize configurations and ensure simple access from local/remote nodes.  The core daemons follow:
