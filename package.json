@@ -33,6 +33,7 @@
     "moment": "2.19.3",
     "mysql": "2.15.0",
     "node-lmdb": "0.4.12",
+    "nodemailer": "^4.6.3",
     "promise-mysql": "3.0.0",
     "protocol-buffers": "^3.2.1",
     "range": "0.0.3",
