@@ -48,6 +48,14 @@
     "name": "Alloy",
     "mixIn": 1,
     "shortCode": "XAO"
+  },
+  "xlc": {
+    "funcFile": "./lib/coins/xlc.js",
+    "paymentFile": "./payment_systems/xlc.js",
+    "sigDigits": 100000000,
+    "name": "LeviarCoin",
+    "mixIn": 1,
+    "shortCode": "XLC"
   }
 
 }
