@@ -574,37 +574,5 @@
     "item_value": "0",
     "item_type": "int",
     "Item_desc": "Number of blocks assumed before the payout unlocks."
-  },
-  {
-    "id": 78,
-    "module": "general",
-    "item": "discordWebhook",
-    "item_value": "",
-    "item_type": "string",
-    "Item_desc": "Webhook path for Discord messages, this should be the part AFTER https://discordapp.com/api/webhooks/"
-  },
-  {
-    "id": 79,
-    "module": "general",
-    "item": "discordBlockAnnounce",
-    "item_value": "true",
-    "item_type": "bool",
-    "Item_desc": "Announce block finds in Discord"
-  },
-  {
-    "id": 80,
-    "module": "general",
-    "item": "discordPayoutAnnounce",
-    "item_value": "true",
-    "item_type": "bool",
-    "Item_desc": "Announce payout transactions in Discord"
-  },
-  {
-    "id": 81,
-    "module": "pplns",
-    "item": "minEffortRetention",
-    "item_value": "750",
-    "item_type": "int",
-    "Item_desc": "Minimum difficulty of worth of shares to retain, measured in round effort. This helps make sure that multiShare * difficulty worth of shares is available even when network difficulty is extemely volatile."
   }
 ]

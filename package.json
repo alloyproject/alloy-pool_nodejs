@@ -5,15 +5,9 @@
   "main": "init.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Venthos/nodejs-pool.git"
+    "url": "https://github.com/Snipa22/node-crypto-pool.git"
   },
-  "author": "Alexander Blair",
-  "contributors": [
-    {
-      "name": "Brian Oates",
-      "email": "venthos@venthos.net"
-    }
-  ],
+  "author": "Multiple",
   "license": "MIT",
   "dependencies": {
     "async": "2.1.4",
@@ -30,10 +24,9 @@
     "express": "4.14.0",
     "jsonwebtoken": "^7.2.1",
     "minimist": "1.2.0",
-    "moment": "2.19.3",
+    "moment": "2.21.0",
     "mysql": "2.15.0",
     "node-lmdb": "0.4.12",
-    "nodemailer": "^4.6.3",
     "promise-mysql": "3.0.0",
     "protocol-buffers": "^3.2.1",
     "range": "0.0.3",
@@ -49,9 +42,7 @@
     "zmq": "^2.15.3"
   },
   "optionalDependencies": {
-    "cryptonote-util": "git://github.com/alloyproject/node-cryptonote-util.git",
-    "intensecoin-util": "git://github.com/valiant1x/node-cryptonote-util.git#xmr-Nan-2.0",
-    "forknote-util": "git://github.com/wallet42/node-forknote-util.git",
-    "multi-hashing": "git://github.com/clintar/node-multi-hashing.git#Nan-2.0"
+    "cryptoforknote-util": "git+https://github.com/MoneroOcean/node-cryptoforknote-util.git",
+    "cryptonight-hashing": "git+https://github.com/MoneroOcean/node-cryptonight-hashing.git"
   }
 }

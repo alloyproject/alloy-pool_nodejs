@@ -21,10 +21,18 @@ CREATE TABLE `bans` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ip_address` varchar(40) DEFAULT NULL,
   `mining_address` varchar(200) DEFAULT NULL,
+  `reason` varchar(200) DEFAULT NULL,
   `active` tinyint(1) DEFAULT '1',
   `ins_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `bans_id_uindex` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mining_address` varchar(200) DEFAULT NULL,
+  `message` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `notifications_id_uindex` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `block_log` (
   `id` int(11) NOT NULL COMMENT 'Block Height',
@@ -52,7 +60,7 @@ CREATE TABLE `config` (
 CREATE TABLE `payments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `unlocked_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `paid_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `paid_time` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `pool_type` varchar(64) DEFAULT NULL,
   `payment_address` varchar(125) DEFAULT NULL,
   `transaction_id` int(11) DEFAULT NULL COMMENT 'Transaction ID in the transactions table',
@@ -74,6 +82,7 @@ CREATE TABLE `pools` (
   `blockID` int(11) DEFAULT NULL,
   `blockIDTime` timestamp NULL DEFAULT NULL,
   `hostname` varchar(128) DEFAULT NULL,
+  `port` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `pools_id_uindex` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -92,9 +101,9 @@ CREATE TABLE `ports` (
   `network_port` int(11) DEFAULT NULL,
   `starting_diff` int(11) DEFAULT NULL,
   `port_type` varchar(64) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
+  `description` varchar(256) DEFAULT NULL,
   `hidden` tinyint(1) DEFAULT '0',
-  `ip_address` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(256) DEFAULT NULL,
   `lastSeen` timestamp NULL DEFAULT NULL,
   `miners` int(11) DEFAULT NULL,
   `ssl_port` tinyint(1) DEFAULT '0'
@@ -138,12 +147,16 @@ CREATE TABLE `transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) NOT NULL,
+  `username` varchar(256) NOT NULL,
   `pass` varchar(64) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
+  `email` varchar(256) DEFAULT NULL,
   `admin` tinyint(1) DEFAULT '0',
   `payout_threshold` bigint(16) DEFAULT '0',
   `enable_email` tinyint(1) DEFAULT '1',
+  `enable_payout` tinyint(1) DEFAULT '1',
+  `telegram_id` varchar(20) DEFAULT NULL,
+  `enable_tlg` tinyint(1) DEFAULT '0',
+  `enable_tlg_payout` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_id_uindex` (`id`),
   UNIQUE KEY `users_username_uindex` (`username`)
@@ -177,10 +190,11 @@ INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES 
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'trustMin', '20', 'int', 'Minimum level of miner trust');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'trustPenalty', '30', 'int', 'Number of shares that must be successful to be trusted, reset to this value if trust share is broken');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'retargetTime', '60', 'int', 'Time between difficulty retargets');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('daemon', 'address', '127.0.0.1', 'string', 'Alloy Daemon RPC IP');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('daemon', 'port', '1811', 'int', 'Alloy Daemon RPC Port');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('wallet', 'address', '127.0.0.1', 'string', 'Alloy Daemon RPC Wallet IP');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('wallet', 'port', '8070', 'int', 'Alloy Daemon RPC Wallet Port');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('daemon', 'address', '127.0.0.1', 'string', 'Monero Daemon RPC IP');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('daemon', 'port', '18081', 'int', 'Monero Daemon RPC Port');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('daemon', 'activePort', '18081', 'int', 'Currently Active Daemon RPC Port');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('wallet', 'address', '127.0.0.1', 'string', 'Monero Daemon RPC Wallet IP');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('wallet', 'port', '18082', 'int', 'Monero Daemon RPC Wallet Port');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('rpc', 'https', 'false', 'bool', 'Enable RPC over SSL');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'maxDifficulty', '500000', 'int', 'Maximum difficulty for VarDiff');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'minDifficulty', '100', 'int', 'Minimum difficulty for VarDiff');
@@ -201,20 +215,26 @@ INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES 
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'feesForTXN', '10', 'int', 'Amount of XMR that is left from the fees to pay miner fees.');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'maxTxnValue', '250', 'int', 'Maximum amount of XMR to send in a single transaction');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'shapeshiftPair', 'xmr_btc', 'string', 'Pair to use in all shapeshift lookups for auto BTC payout');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'coinCode', 'XAO', 'string', 'Coincode to be loaded up w/ the shapeshift getcoins argument.');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'coinCode', 'XMR', 'string', 'Coincode to be loaded up w/ the shapeshift getcoins argument.');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'allowBitcoin', 'false', 'bool', 'Allow the pool to auto-payout to BTC via ShapeShift');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'exchangeRate', '0', 'float', 'Current exchange rate');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'bestExchange', 'xmrto', 'string', 'Current best exchange');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'mixIn', '4', 'int', 'Mixin count for coins that support such things.');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'mixIn', '6', 'int', 'Mixin count for coins that support such things.');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'statsBufferLength', '480', 'int', 'Number of items to be cached in the stats buffers.');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pps', 'enable', 'false', 'bool', 'Enable PPS or not');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pplns', 'shareMulti', '2', 'int', 'Multiply this times difficulty to set the N in PPLNS');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pplns', 'shareMultiLog', '3', 'int', 'How many times the difficulty of the current block do we keep in shares before clearing them out');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'blockCleaner', 'true', 'bool', 'Enable the deletion of blocks or not.');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'address', '', 'string', 'Address to mine to, this should be the wallet-rpc address.');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'address_19734', '', 'string', 'Address to mine to for 19734 (SUMO) port.');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'address_26968', '', 'string', 'Address to mine to for 26968 (ETN) port.');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'address_18981', '', 'string', 'Address to mine to for 18981 (GRFT) port.');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'address_38081', '', 'string', 'Address to mine to for 38081 (MSR) port.');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pool', 'address_48782', '', 'string', 'Address to mine to for 48782 (ITNS) port.');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'feeAddress', '', 'string', 'Address that pool fees are sent to.');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'mailgunKey', '', 'string', 'MailGun API Key for notification');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'mailgunURL', '', 'string', 'MailGun URL for notifications');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'mailgunNoCert', 'false', 'bool', 'Disable certificate check for MailGun');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'emailFrom', '', 'string', 'From address for the notification emails');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'testnet', 'false', 'bool', 'Does this pool use testnet?');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pplns', 'enable', 'true', 'bool', 'Enable PPLNS on the pool.');
@@ -225,18 +245,17 @@ INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES 
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'rpcPasswordPath', '', 'string', 'Path and file for the RPC password file location');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'maxPaymentTxns', '5', 'int', 'Maximum number of transactions in a single payment');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'shareHost', '', 'string', 'Host that receives share information');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('email', 'workerNotHashingBody', 'Hello,\n\nYour worker: %(worker)s has stopped submitting hashes at: %(timestamp)s UTC\n\nThank you,\n%(poolEmailSig)s', 'string', 'Email sent to the miner when their worker stops hashing');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('email', 'workerNotHashingSubject', 'Worker %(worker)s stopped hashing', 'string', 'Subject of email sent to miner when worker stops hashing');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('email', 'workerNotHashingBody', 'Your worker: %(worker)s has stopped submitting hashes at: %(timestamp)s UTC\n', 'string', 'Email sent to the miner when their worker stops hashing');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('email', 'workerNotHashingSubject', 'Status of your worker(s)', 'string', 'Subject of email sent to miner when worker stops hashing');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('email', 'workerStartHashingBody', 'Your worker: %(worker)s has started submitting hashes at: %(timestamp)s UTC\n', 'string', 'Email sent to the miner when their worker starts hashing');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('email', 'workerStartHashingSubject', 'Status of your worker(s)', 'string', 'Subject of email sent to miner when worker starts hashing');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'emailSig', 'NodeJS-Pool Administration Team', 'string', 'Signature line for the emails.');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'timer', '120', 'int', 'Number of minutes between main payment daemon cycles');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'timerRetry', '25', 'int', 'Number of minutes between payment daemon retrying due to not enough funds');
 INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('payout', 'priority', '0', 'int', 'Payout priority setting. 0 = use default (4x fee); 1 = low prio (1x fee)');
+INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'allowStuckPoolKill', 'false', 'bool', 'Allow to kill the pool in case of stuck block template');
 INSERT INTO pool.users (username, pass, email, admin, payout_threshold) VALUES ('Administrator', null, 'Password123', 1, 0);
 INSERT INTO pool.port_config (poolPort, difficulty, portDesc, portType, hidden, `ssl`) VALUES (3333, 1000, 'Low-End Hardware (Up to 30-40 h/s)', 'pplns', 0, 0);
 INSERT INTO pool.port_config (poolPort, difficulty, portDesc, portType, hidden, `ssl`) VALUES (5555, 5000, 'Medium-Range Hardware (Up to 160 h/s)', 'pplns', 0, 0);
 INSERT INTO pool.port_config (poolPort, difficulty, portDesc, portType, hidden, `ssl`) VALUES (7777, 10000, 'High-End Hardware (Anything else!)', 'pplns', 0, 0);
 INSERT INTO pool.port_config (poolPort, difficulty, portDesc, portType, hidden, `ssl`) VALUES (9000, 20000, 'Claymore SSL', 'pplns', 0, 1);
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'discordWebhook', '', 'string', 'Webhook path for Discord messages, this should be the part AFTER https://discordapp.com/api/webhooks/');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'discordBlockAnnounce', 'true', 'bool', 'Announce block finds in Discord');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('general', 'discordPayoutAnnounce', 'true', 'bool', 'Announce payout transactions in Discord');
-INSERT INTO pool.config (module, item, item_value, item_type, Item_desc) VALUES ('pplns', 'minEffortRetention', '750', 'int', 'Minimum difficulty of worth of shares to retain, measured in round effort. This helps make sure that multiShare * difficulty worth of shares is available even when network difficulty is extemely volatile.');
