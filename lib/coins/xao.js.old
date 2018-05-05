@@ -11,18 +11,25 @@ function Coin(data){
     this.bestExchange = global.config.payout.bestExchange;
     this.data = data;
     let instanceId = crypto.randomBytes(4);
-    this.coinDevAddress = "Kdev1L9V5ow3cdKNqDpLcFFxZCqu5W2GE9xMKewsB2pUXWxcXvJaUWHcSrHuZw91eYfQFzRtGfTemReSSMN4kE445i6Etb3";  // Developer Address
-    this.poolDevAddress = "KgseWakG2bMXHGJSsAUfzL1HykCyvD4m8gd9qgcuyZ1ufy8PqUCKRxEfAv3nahfdTrCjZByiWoCiRiohxq4u2rf2RgQ1pcJ";  // Snipa Address
+    this.coinDevAddress = "";  // Developer Address
+    this.poolDevAddress = "";  // Venthos Address
 
     this.blockedAddresses = [
         this.coinDevAddress,
-        this.poolDevAddress,
+        this.poolDevAddress
     ];
 
     this.exchangeAddresses = [
+        "iz4pcDLxmo7KqbFmYjE5aGDv68U9Sgm1ePFjWUY24vzyPeGMcoG894MAFjrtHbaMv1TygTcvJWzGN3zNR6PeEYuc1w8V2tiMW" // stocks.exchange
     ]; // These are addresses that MUST have a paymentID to perform logins with.
 
-    this.prefix = 111;
+    this.prefix = 54;
+    this.intPrefix = 55;
+
+    if (global.config.general.testnet === true) {
+        this.prefix = 25247;
+        this.intPrefix = 3745;
+    }
 
     this.supportsAutoExchange = false;
 
@@ -82,14 +89,10 @@ function Coin(data){
     };
 
     this.getBalance = function(callback){
-        global.support.rpcWallet('getBalance', {}, function (body) {
-            if (typeof(body) !== 'undefined' && body.hasOwnProperty('result')){
-                // Karbowanec returns differently named objects than what the pool code expects,
-                // so we shoe horn them into a standardized naming scheme so it matches up
-                return callback(null, {
-                    balance: body.result.lockedAmount,
-                    unlocked_balance: body.result.availableBalance
-                });
+        global.support.rpcWallet('getbalance', [], function (body) {
+	    console.log(body)
+	    if (typeof(body) !== 'undefined' && body.hasOwnProperty('result')){
+                return callback(null, body.result);
             } else {
                 console.error(JSON.stringify(body));
                 return callback(true, body);
@@ -98,8 +101,15 @@ function Coin(data){
     };
 
     this.getHeight = function(callback){
-        // Seems to not be implemented? Return a 0 block height instead
-        return callback(null, 0);
+        global.support.rpcWallet('get_height', [], function (body) {
+            console.log(body)
+	    if (typeof(body) !== 'undefined' && body.hasOwnProperty('result')){
+                return callback(null, body.result.height);
+            } else {
+                console.error(JSON.stringify(body));
+                return callback(true, body);
+            }
+        });
     };
 
     this.baseDiff = function(){
@@ -112,11 +122,12 @@ function Coin(data){
         if (cnUtil.address_decode(address) === this.prefix){
             return true;
         }
-        return false;
+        return cnUtil.address_decode_integrated(address) === this.intPrefix;
     };
 
     this.isIntegratedAddress = function(address) {
-        return false;
+        address = new Buffer(address);
+        return cnUtil.address_decode_integrated(address) === this.intPrefix;
     };
 
     this.convertBlob = function(blobBuffer){
@@ -184,8 +195,11 @@ function Coin(data){
         };
     };
 
-    this.cryptoNight = multiHashing.cryptonight;
+    //this.cryptoNight = multiHashing.cryptonight;
 
+    this.cryptoNight = function(convertedBlob) {
+        return multiHashing.cryptonight_alloy(convertedBlob);
+    }
 }
 
 module.exports = Coin;

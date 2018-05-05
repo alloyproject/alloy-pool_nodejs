@@ -67,7 +67,7 @@ global.mysql.query("SELECT * FROM config").then(function (rows) {
      optional int64 value = 8;
      }
      */
-    /*let invalidBlockProto = global.protos.Block.encode({
+    let invalidBlockProto = global.protos.Block.encode({
         hash: "88cf2c37e1e4e8a273cbe3ec502b6975fd6c4ebe1e8889ad9d5e53a5e9cde007",
         difficulty: 1002932,
         shares: 0,
@@ -87,6 +87,5 @@ global.mysql.query("SELECT * FROM config").then(function (rows) {
         console.log(error);
         console.log(JSON.stringify(response));
         console.log(JSON.stringify(body));
-    });*/
+    });
 });
-

@@ -25,79 +25,29 @@
     "mixIn": 4,
     "shortCode": "AEON"
   },
-  "aeon-rebase": {
-    "funcFile": "./lib/coins/aeon-rebase.js",
-    "paymentFile": "./payment_systems/aeon-rebase.js",
-    "sigDigits": 1000000000000,
-    "name": "Aeon Coin",
-    "mixIn": 4,
-    "shortCode": "AEON"
-  },
-  "trtl": {
-    "funcFile": "./lib/coins/trtl.js",
-    "paymentFile": "./payment_systems/trtl.js",
-    "sigDigits": 100,
-    "name": "TurtleCoin",
-    "mixIn": 1,
-    "shortCode": "TRTL"
-  },
-  "fno": {
-    "funcFile": "./lib/coins/fno.js",
-    "paymentFile": "./payment_systems/fno.js",
-    "sigDigits": 1000000000000,
-    "name": "Fonero",
-    "mixIn": 13,
-    "shortCode": "FNO"
-  },
-    "grft": {
-    "funcFile": "./lib/coins/grft.js",
-    "paymentFile": "./payment_systems/grft.js",
-    "sigDigits": 10000000000,
-    "name": "Graft",
-    "mixIn": 5,
-    "shortCode": "GRFT"
-  },
-    "xtl": {
-    "funcFile": "./lib/coins/xtl.js",
-    "paymentFile": "./payment_systems/xtl.js",
-    "sigDigits": 100,
-    "shapeshift": "xtl_btc",
-    "xmrTo": false,
-    "name": "Stellite",
+  "itns142": {
+    "funcFile": "./lib/coins/itns142.js",
+    "paymentFile": "./payment_systems/itns142.js",
+    "sigDigits": 100000000,
+    "name": "Intense Coin",
     "mixIn": 3,
-    "shortCode": "XTL"
+    "shortCode": "ITNS"
   },
-    "dero": {
-    "funcFile": "./lib/coins/dero.js",
-    "paymentFile": "./payment_systems/dero.js",
-    "sigDigits": 1000000000000,
-    "name": "Dero",
-    "mixIn": 5,
-    "shortCode": "DERO"
+  "itns": {
+    "funcFile": "./lib/coins/itns.js",
+    "paymentFile": "./payment_systems/itns.js",
+    "sigDigits": 100000000,
+    "name": "Intense Coin",
+    "mixIn": 4,
+    "shortCode": "ITNS"
   },
-    "lok": {
-    "funcFile": "./lib/coins/lok.js",
-    "paymentFile": "./payment_systems/lok.js",
-    "sigDigits": 1000000000,
-    "name": "Loki",
-    "mixIn": 10,
-    "shortCode": "LOK",
-   "xao": {
+ "xao": {
     "funcFile": "./lib/coins/xao.js",
     "paymentFile": "./payment_systems/xao.js",
     "sigDigits": 1000000000000,
     "name": "Alloy",
     "mixIn": 1,
     "shortCode": "XAO"
-  },
-  "xlc": {
-    "funcFile": "./lib/coins/xlc.js",
-    "paymentFile": "./payment_systems/xlc.js",
-    "sigDigits": 100000000,
-    "name": "LeviarCoin",
-    "mixIn": 1,
-    "shortCode": "XLC"
   }
 
-  }
 }
