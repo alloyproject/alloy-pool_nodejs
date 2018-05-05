@@ -5,9 +5,15 @@
   "main": "init.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Snipa22/node-crypto-pool.git"
+    "url": "https://github.com/Venthos/nodejs-pool.git"
   },
-  "author": "Multiple",
+  "author": "Alexander Blair",
+  "contributors": [
+    {
+      "name": "Brian Oates",
+      "email": "venthos@venthos.net"
+    }
+  ],
   "license": "MIT",
   "dependencies": {
     "async": "2.1.4",
@@ -24,7 +30,7 @@
     "express": "4.14.0",
     "jsonwebtoken": "^7.2.1",
     "minimist": "1.2.0",
-    "moment": "2.21.0",
+    "moment": "2.17.1",
     "mysql": "2.15.0",
     "node-lmdb": "0.4.12",
     "promise-mysql": "3.0.0",
@@ -42,10 +48,8 @@
     "zmq": "^2.15.3"
   },
   "optionalDependencies": {
-    "cryptoforknote-util": "git+https://github.com/MoneroOcean/node-cryptoforknote-util.git",
-    "cryptonight-hashing": "git+https://github.com/MoneroOcean/node-cryptonight-hashing.git"
-	"cryptonote-util": "git+https://github.com/alloyproject/cryptonote-util.git",
-    "multi-hashing": "git+https://github.com/alexmateescu/multi-hashing-alloy.git"
-
+    "cryptonote-util": "git+https://github.com/alloyproject/cryptonote-util.git",
+    "forknote-util": "git+https://github.com/wallet42/node-forknote-util.git",
+    "multi-hashing": "git+https://github.com/alloyproject/multi-hashing-alloy.git"
   }
 }
