@@ -41,11 +41,11 @@
     "mixIn": 4,
     "shortCode": "ITNS"
   },
-   "xao": {
+ "xao": {
     "funcFile": "./lib/coins/xao.js",
     "paymentFile": "./payment_systems/xao.js",
     "sigDigits": 1000000000000,
-    "name": "Alloy",
+    "name": "Intense Coin",
     "mixIn": 1,
     "shortCode": "XAO"
   }

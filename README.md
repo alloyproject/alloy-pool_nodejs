@@ -1,5 +1,5 @@
 # nodejs-pool
-This repository is a fork of [Venthos](https://github.com/Venthos/)'s [nodejs-pool] (https://github.com/Venthos/nodejs-pool) which is maintained by [alexmateescu](https://github.com/alexmateescu).  This repository will most closely follow the needs and requests of the [Alloy XAO](https://alloyproject.org) community, as that is the coin this was originally forked to accommodate.
+This repository is a fork of [Snipa22](https://github.com/Snipa22)'s [nodejs-pool](https://github.com/Snipa22/nodejs-pool) which is maintained by [Venthos](https://github.com/Venthos).  This repository will most closely follow the needs and requests of the [Intense Coin](https://intensecoin.com) community, as that is the coin this was originally forked to accommodate.
 
 However, this fork contains fixes and features that would be useful to any cryptonight/cryptonight-lite coin pool operator.
 
@@ -8,7 +8,6 @@ Other coins will likely be supported, although not prioritized or as thoroughly 
 # Supported Coins
 Coin | Name | Coin File | Supported | Tested
 ---- | ---- | --------- | --------- | ------
-XAO | Alloy 2.2 | xao | :white_check_mark: | :white_check_mark:
 ITNS | ITNS (1.44+) | itns | :white_check_mark: | :white_check_mark:
 ITNS | ITNS (up to 1.4.2) | itns142 | :white_check_mark: | :white_check_mark:
 XMR | Monero | xmr | :white_check_mark: | :white_check_mark:
@@ -16,9 +15,9 @@ AEON | Aeon | aeon | :white_check_mark: | :white_check_mark:
 KRB | Karbowanec | krb | :white_check_mark: | :x:
 
 # Reference Installation
-[http://xao.almsoft.net](http://xao.almsoft.net) is the reference pool that utilizes this repository.  Take a look at the pool for a production example of this codebase.
+[https://ITNSpool.net](https://itnspool.net) is the reference pool that utilizes this repository.  Take a look at the pool for a production example of this codebase.
 
-The UI is the [moded poolui](https://github.com/alexmateescu/poolui). There is a new UI being built.
+While the UI in use by ITNSPool is a custom fork of [miziel's poolui](https://github.com/miziel/poolui), the [original poolui](https://github.com/mesh0000/poolui) will work with this nodejs-pool fork out of the box.  Any other forks of poolui will likely work, too.
 
 # Pool Design/Theory
 The nodejs-pool is built around a small series of core daemons that share access to a single LMDB table for tracking of shares, with MySQL being used to centralize configurations and ensure simple access from local/remote nodes.  The core daemons follow:
@@ -57,6 +56,7 @@ Single Server | caddy, crypto-daemon, crypto-wallet, mysql, lmdb, api, remoteSha
 * Frontend load is susceptible to causing backend performance issues, and vice versa
 
 ### Main Server w/Additional Pool Nodes
+This is what [ITNSpool.net](https://itnspool.net) currently utilizes, as a compromise in offering geographically convenient servers for miners to use while keeping costs lower than they have to be.  This setup is the minimum barrier to provide two pool servers that miners can use.
 
 Server | Services
 ------ | --------
@@ -121,7 +121,7 @@ The below should be considered bare minimum requirements for a pool that is just
 
 **Single/Main Server**
 * 4 GB RAM
-* 2 CPU Cores (with AES_NI or without)
+* 2 CPU Cores (with AES_NI)
 * SSD-Backed Storage
   * Up to 24GB for LMDB
   * Enough room for your choice in coin's blockchain, including future growth
@@ -145,14 +145,13 @@ The below should be considered bare minimum requirements for a pool that is just
 ### Deployment via Installer
 
 1. Add your user to `/etc/sudoers`, this must be done so the script can sudo up and do it's job.  We suggest passwordless sudo.  Suggested line: `<USER> ALL=(ALL) NOPASSWD:ALL`.  Our sample builds use: `pooldaemon ALL=(ALL) NOPASSWD:ALL`
-2. Run the [deploy script](https://raw.githubusercontent.com/alexmateescu/nodejs-pool/master/deployment/deploy.bash) as a **NON-ROOT USER**.  This is very important!  This script will install the pool to whatever user it's running under!  Also.  Go get a coffee, this sucker bootstraps the intensecoin installation.
+2. Run the [deploy script](https://raw.githubusercontent.com/Venthos/nodejs-pool/master/deployment/deploy.bash) as a **NON-ROOT USER**.  This is very important!  This script will install the pool to whatever user it's running under!  Also.  Go get a coffee, this sucker bootstraps the intensecoin installation.
 3. Once it's complete, change as `config.json` appropriate.  It is pre-loaded for a local install of everything, running on 127.0.0.1.  This will work perfectly fine if you're using a single node setup.  You'll also want to set `bind_ip` to the external IP of the pool server, and `hostname` to the resolvable hostname for the pool server. `pool_id` is mostly used for multi-server installations to provide unique identifiers in the backend. You will also want to run: source ~/.bashrc  This will activate NVM and get things working for the following pm2 steps.
 4. You'll need to change the API endpoint for the frontend code in the `poolui/build/globals.js` and `poolui/build/globals.default.js` -- This will usually be `http(s)://<your server FQDN>/api` unless you tweak caddy!
 5. The default database directory `/home/<username>/pool_db/` is already been created during startup. If you change the `db_storage_path` just make sure your user has write permissions for new path. Run: `pm2 restart api` to reload the API for usage.
 6. Hop into the web interface (Should be at `http://<your server IP>/admin.html`), then login with `Administrator/Password123`, **MAKE SURE TO CHANGE THIS PASSWORD ONCE YOU LOGIN**. *<- This step is currently not active, we're waiting for the frontend to catch up!  Head down to the Manual SQL Configuration to take a look at what needs to be done by hand for now*.
 7. From the admin panel, you can configure all of your pool's settings for addresses, payment thresholds, etc.
-8. Make sure you do the manual mysql setup belore doing step 9. Navigate below to Manual Setup
-9. Once you're happy with the settings, go ahead and start all the pool daemons, commands follow.
+8. Once you're happy with the settings, go ahead and start all the pool daemons, commands follow.
 
 ```shell
 cd ~/nodejs-pool/
@@ -163,13 +162,11 @@ pm2 start init.js --name=remoteShare --log-date-format="YYYY-MM-DD HH:mm Z" -- -
 pm2 start init.js --name=longRunner --log-date-format="YYYY-MM-DD HH:mm Z" -- --module=longRunner
 pm2 start init.js --name=pool --log-date-format="YYYY-MM-DD HH:mm Z" -- --module=pool
 pm2 restart api
-
-10. once the daemon is synced do sudo systemctl enable walletd, sudo systemctl start walletd
 ```
 
 Install Script:
 ```bash
-curl -L https://raw.githubusercontent.com/alexmateescu/nodejs-pool/master/deployment/deploy.bash | bash
+curl -L https://raw.githubusercontent.com/Venthos/nodejs-pool/master/deployment/deploy.bash | bash
 ```
 
 ### Assumptions for the installer
@@ -188,12 +185,15 @@ I've confirmed that the default server 16.04 installation has these requirements
 
 The pool comes pre-configured with values for Intense Coin (ITNS), these may need to be changed depending on the exact requirements of your coin.  Other coins will likely be added down the road, and most likely will have configuration.sqls provided to overwrite the base configurations for their needs, but can be configured within the frontend as well.
 
-### Wallet Setup - We generated this allready but there is no harm in checking them
+### Wallet Setup
 The pool is designed to have a dual-wallet design, one which is a fee wallet, one which is the live pool wallet.  The fee wallet is the default target for all fees owed to the pool owner.  PM2 can also manage your wallet daemon, and that is the suggested run state.
 
-1. The wallets are generated already
-2. Check out /home/alloydaemon/alloyd.log and see if it finished syncronizing
-3. start wallet with "sudo service walletd start"
+1. Generate your wallets using `/usr/local/src/intensecoin/build/release/bin/intense-wallet-cli`
+2. Make sure to save your regeneration stuff!
+3. For the pool wallet, store the password in a file, the suggestion is `~/wallet_pass`
+4. Change the mode of the file with chmod to 0400: `chmod 0400 ~/wallet_pass`
+5. Start the wallet using PM2: `pm2 start /usr/local/src/intensecoin/build/release/bin/intense-wallet-rpc -- --rpc-bind-port 48783 --password-file ~/wallet_pass --wallet-file <Your wallet name here> --disable-rpc-login --trusted-daemon`
+6. If you don't use PM2, then throw the wallet into a screen and have fun.
 
 ### Manual Setup
 Pretty similar to the above, you may wish to dig through a few other things for sanity sake, but the installer scripts should give you a good idea of what to expect from the ground up.

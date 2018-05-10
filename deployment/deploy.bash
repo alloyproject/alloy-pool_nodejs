@@ -7,7 +7,6 @@ if [[ `whoami` == "root" ]]; then
     exit 1
 fi
 ROOT_SQL_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-WALLET_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 CURUSER=$(whoami)
 sudo timedatectl set-timezone Etc/UTC
 sudo apt-get update
@@ -17,7 +16,7 @@ sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again p
 echo -e "[client]\nuser=root\npassword=$ROOT_SQL_PASS" | sudo tee /root/.my.cnf
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y install git python-virtualenv python3-virtualenv curl ntp build-essential screen cmake pkg-config libboost-all-dev libevent-dev libunbound-dev libminiupnpc-dev libunwind8-dev liblzma-dev libldns-dev libexpat1-dev libgtest-dev mysql-server lmdb-utils libzmq3-dev
 cd ~
-git clone https://github.com/alloyproject/alloy-pool.git nodejs-pool  # Change this depending on how the deployment goes.
+git clone https://github.com/Venthos/nodejs-pool.git  # Change this depending on how the deployment goes.
 cd /usr/src/gtest
 sudo cmake .
 sudo make
@@ -31,17 +30,15 @@ sudo mkdir build
 cd build
 sudo cmake ..
 sudo make -j$(nproc)
-sudo cp ~/nodejs-pool/deployment/alloy.service /lib/systemd/system/
+#sudo cp ~/nodejs-pool/deployment/intensecoin.service /lib/systemd/system/
 sudo useradd -m alloydaemon -d /home/alloydaemon
-echo exit | sudo /usr/local/src/alloy/build/src/simplewallet --generate-new-wallet /home/alloydaemon/pool.wallet --password $WALLET_PASS # generate pool wallet
-echo exit | sudo /usr/local/src/alloy/build/src/simplewallet --generate-new-wallet /home/alloydaemon/fee.wallet --password $WALLET_PASS #generate fee wallet
-sudo sed -i "s/password=/password=$WALLET_PASS/g" ~/nodejs-pool/deployment/walletd.service
-sudo cp ~/nodejs-pool/deployment/walletd.service /lib/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable alloy
-sudo systemctl enable walletd
-sudo systemctl start alloy
-
+#BLOCKCHAIN_DOWNLOAD_DIR=$(sudo -u intensedaemon mktemp -d)
+#sudo -u intensedaemon wget --limit-rate=50m -O $BLOCKCHAIN_DOWNLOAD_DIR/blockchain.raw https://github.com/valiant1x/intensecoin/releases/download/1.4.3/blockchain.raw
+#sudo -u intensedaemon /usr/local/src/intensecoin/build/release/bin/intense-blockchain-import --input-file $BLOCKCHAIN_DOWNLOAD_DIR/blockchain.raw --batch-size 20000 --database lmdb#fastest --verify off --data-dir /home/intensedaemon/.intensecoin
+#sudo -u intensedaemon rm -rf $BLOCKCHAIN_DOWNLOAD_DIR
+#sudo systemctl daemon-reload
+#sudo systemctl enable alloyd
+#sudo systemctl start intense
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
 source ~/.nvm/nvm.sh
 nvm install v8.9.3
@@ -52,7 +49,7 @@ openssl req -subj "/C=IT/ST=Pool/L=Daemon/O=Mining Pool/CN=mining.pool" -newkey 
 mkdir ~/pool_db/
 sed -r "s/(\"db_storage_path\": ).*/\1\"\/home\/$CURUSER\/pool_db\/\",/" config_example.json > config.json
 cd ~
-git clone https://github.com/alexmateescu/poolui.git
+git clone https://github.com/mesh0000/poolui.git
 cd poolui
 npm install
 ./node_modules/bower/bin/bower update
@@ -96,5 +93,4 @@ pm2 start init.js --name=api --log-date-format="YYYY-MM-DD HH:mm Z" -- --module=
 bash ~/nodejs-pool/deployment/install_lmdb_tools.sh
 cd ~/nodejs-pool/sql_sync/
 env PATH=$PATH:`pwd`/.nvm/versions/node/v8.9.3/bin node sql_sync.js
-echo "Your wallet passord is $WALLET_PASS. It will work for both pool and fee wallets. You can find the wallet addreses in simplewallet.log"
 echo "You're setup!  Please read the rest of the readme for the remainder of your setup and configuration.  These steps include: Setting your Fee Address, Pool Address, Global Domain, and the Mailgun setup!"
