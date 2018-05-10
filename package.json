@@ -5,13 +5,13 @@
   "main": "init.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexmateescu/nodejs-pool.git"
+    "url": "https://github.com/Venthos/nodejs-pool.git"
   },
   "author": "Alexander Blair",
   "contributors": [
     {
-      "name": "Alex Mateescu",
-      "email": "alex@almsoft.net"
+      "name": "Brian Oates",
+      "email": "venthos@venthos.net"
     }
   ],
   "license": "MIT",
