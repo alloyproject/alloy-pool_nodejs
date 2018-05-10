@@ -1,6 +1,6 @@
 "use strict";
 const bignum = require('bignum');
-const cnUtil = require('forknote-util');
+const cnUtil = require('cryptonote-util');
 const multiHashing = require('multi-hashing');
 const crypto = require('crypto');
 const debug = require('debug')('coinFuncs');
@@ -11,8 +11,8 @@ function Coin(data){
     this.bestExchange = global.config.payout.bestExchange;
     this.data = data;
     let instanceId = crypto.randomBytes(4);
-    this.coinDevAddress = "iz5w5LGYQY2SseEd9BTaF8SRqFmZLTEVDBEGidvzYnZBcc9RMEHXs2rXBZfAvXQPPc85NR2JeZcQUj7jjBcgw26b1Rk6m4H2z";  // Developer Address
-    this.poolDevAddress = "iz5imhe9C7vWnjZtZBFtT8MwNxVuJuryUUHXSAtnWUo93CJzNdZBizHQExPRCHUBi36tk2BcigPAFRDA4cnddGXF1R6j69n3w";  // Venthos Address
+    this.coinDevAddress = "";  // Developer Address
+    this.poolDevAddress = "";  // Venthos Address
 
     this.blockedAddresses = [
         this.coinDevAddress,
@@ -23,7 +23,13 @@ function Coin(data){
         "iz4pcDLxmo7KqbFmYjE5aGDv68U9Sgm1ePFjWUY24vzyPeGMcoG894MAFjrtHbaMv1TygTcvJWzGN3zNR6PeEYuc1w8V2tiMW" // stocks.exchange
     ]; // These are addresses that MUST have a paymentID to perform logins with.
 
-    this.prefix = 251;
+    this.prefix = 54;
+    this.intPrefix = 55;
+
+    if (global.config.general.testnet === true) {
+        this.prefix = 25247;
+        this.intPrefix = 3745;
+    }
 
     this.supportsAutoExchange = false;
 
@@ -41,10 +47,7 @@ function Coin(data){
     };
 
     this.getBlockHeaderByHeight = function(blockHeight, callback){
-        // Intense Coin's API is busted.  Using 'getblockheaderbyheight' with the correct block height
-        // results in the information for the previous block being provided.  Here, we +1 what was
-        // requested of us so we can give back the data actually desired.
-        global.support.rpcDaemon('getblockheaderbyheight', {"height": blockHeight + 1}, function (body) {
+        global.support.rpcDaemon('getblockheaderbyheight', {"height": blockHeight}, function (body) {
             if (typeof(body) !== 'undefined' && body.hasOwnProperty('result')){
                 return callback(null, body.result.block_header);
             } else {
@@ -86,14 +89,10 @@ function Coin(data){
     };
 
     this.getBalance = function(callback){
-        global.support.rpcWallet('getBalance', {}, function (body) {
-            if (typeof(body) !== 'undefined' && body.hasOwnProperty('result')){
-                // Intense Coin returns differently named objects than what the pool code expects,
-                // so we shoe horn them into a standardized naming scheme so it matches up
-                return callback(null, {
-                    balance: body.result.lockedAmount,
-                    unlocked_balance: body.result.availableBalance
-                });
+        global.support.rpcWallet('getbalance', [], function (body) {
+	    console.log(body)
+	    if (typeof(body) !== 'undefined' && body.hasOwnProperty('result')){
+                return callback(null, body.result);
             } else {
                 console.error(JSON.stringify(body));
                 return callback(true, body);
@@ -102,11 +101,10 @@ function Coin(data){
     };
 
     this.getHeight = function(callback){
-        // Intense Coin does not have a 'getheight' API call.  It seems that we can utilize
-        // 'getstatus' for this purpose instead and simply return the value of 'blockCount'.
-        global.support.rpcWallet('getStatus', {}, function (body) {
-            if (typeof(body) !== 'undefined' && body.hasOwnProperty('result')){
-                return callback(null, body.result.blockCount);
+        global.support.rpcWallet('get_height', [], function (body) {
+            console.log(body)
+	    if (typeof(body) !== 'undefined' && body.hasOwnProperty('result')){
+                return callback(null, body.result.height);
             } else {
                 console.error(JSON.stringify(body));
                 return callback(true, body);
@@ -121,11 +119,15 @@ function Coin(data){
     this.validateAddress = function(address){
         // This function should be able to be called from the async library, as we need to BLOCK ever so slightly to verify the address.
         address = new Buffer(address);
-        return cnUtil.address_decode(address) === this.prefix;
+        if (cnUtil.address_decode(address) === this.prefix){
+            return true;
+        }
+        return cnUtil.address_decode_integrated(address) === this.intPrefix;
     };
 
     this.isIntegratedAddress = function(address) {
-        return false;
+        address = new Buffer(address);
+        return cnUtil.address_decode_integrated(address) === this.intPrefix;
     };
 
     this.convertBlob = function(blobBuffer){
@@ -193,8 +195,11 @@ function Coin(data){
         };
     };
 
-    this.cryptoNight = multiHashing.cryptonight;
+    //this.cryptoNight = multiHashing.cryptonight;
 
+    this.cryptoNight = function(convertedBlob) {
+        return multiHashing.cryptonight_alloy(convertedBlob);
+    }
 }
 
 module.exports = Coin;
